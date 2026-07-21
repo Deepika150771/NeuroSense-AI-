@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroSense AI</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F0F4F8; color: #1a2433; }
+
+  :root {
+    --blue-primary: #1565C0;
+    --blue-light: #E3F2FD;
+    --blue-mid: #1976D2;
+    --blue-dark: #0D47A1;
+    --accent: #00ACC1;
+    --green: #2E7D32;
+    --green-light: #E8F5E9;
+    --yellow: #F57F17;
+    --yellow-light: #FFF8E1;
+    --red: #C62828;
+    --red-light: #FFEBEE;
+    --gray-bg: #F0F4F8;
+    --gray-card: #FFFFFF;
+    --gray-border: #E0E8F0;
+    --text-main: #1a2433;
+    --text-muted: #546E7A;
+    --text-light: #78909C;
+  }
+
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: block; }
+
+  /* NAV */
+  .nav {
+    background: var(--gray-card);
+    border-bottom: 1px solid var(--gray-border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; }
+  .nav-logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--blue-primary), var(--accent));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+  }
+  .nav-title { font-size: 18px; font-weight: 700; color: var(--blue-primary); }
+  .nav-subtitle { font-size: 11px; color: var(--text-muted); }
+  .nav-badge {
+    background: var(--blue-light);
+    color: var(--blue-primary);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0D47A1 0%, #1565C0 40%, #0097A7 100%);
+    color: white;
+    padding: 80px 2rem 100px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%),
+                radial-gradient(circle at 70% 20%, rgba(0,172,193,0.1) 0%, transparent 40%);
+  }
+  .hero-content { position: relative; max-width: 700px; margin: 0 auto; }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+  .hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 12px; letter-spacing: -1px; }
+  .hero h1 span { color: #80DEEA; }
+  .hero-tagline { font-size: 20px; opacity: 0.9; margin-bottom: 12px; font-weight: 300; }
+  .hero-sub { font-size: 14px; opacity: 0.7; margin-bottom: 40px; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .btn-primary {
+    background: white;
+    color: var(--blue-primary);
+    border: none;
+    padding: 14px 36px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
+  .btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255,255,255,0.4);
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--gray-card);
+    border-bottom: 1px solid var(--gray-border);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    divide: 1;
+  }
+  .stat-item {
+    padding: 20px 24px;
+    text-align: center;
+    border-right: 1px solid var(--gray-border);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-size: 26px; font-weight: 700; color: var(--blue-primary); }
+  .stat-lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  /* SECTIONS */
+  .section { max-width: 1000px; margin: 0 auto; padding: 60px 2rem; }
+  .section-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+  .section-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 40px; }
+
+  /* FEATURE CARDS */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature-card {
+    background: var(--gray-card);
+    border: 1px solid var(--gray-border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.2s;
+  }
+  .feature-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .feature-icon {
+    width: 48px; height: 48px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+  .feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .feature-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    background: #FFF3E0;
+    border: 1px solid #FFB74D;
+    border-left: 4px solid #FF8F00;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 0 2rem 40px;
+    max-width: 956px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .disclaimer-title { font-size: 13px; font-weight: 700; color: #E65100; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .disclaimer p { font-size: 13px; color: #6D4C41; line-height: 1.6; }
+
+  /* FORM */
+  .form-page { background: var(--gray-bg); min-height: 100vh; padding-bottom: 60px; }
+  .form-container { max-width: 600px; margin: 0 auto; padding: 40px 2rem; }
+  .page-header { margin-bottom: 32px; }
+  .page-header h2 { font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+  .page-header p { font-size: 14px; color: var(--text-muted); }
+  .card { background: white; border: 1px solid var(--gray-border); border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-main);
+    background: white;
+    transition: border-color 0.15s;
+    outline: none;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--blue-mid);
+    box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .btn-blue {
+    background: var(--blue-primary);
+    color: white;
+    border: none;
+    padding: 13px 32px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+  }
+  .btn-blue:hover { background: var(--blue-dark); }
+
+  /* PROGRESS */
+  .progress-bar {
+    background: var(--gray-card);
+    border-bottom: 1px solid var(--gray-border);
+    padding: 0 2rem;
+  }
+  .progress-steps {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    gap: 0;
+  }
+  .step {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-light);
+    flex: 1;
+  }
+  .step.active { color: var(--blue-primary); }
+  .step.done { color: var(--green); }
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--gray-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .step.active .step-num { background: var(--blue-primary); color: white; }
+  .step.done .step-num { background: var(--green); color: white; font-size: 13px; }
+  .step-line { flex: 1; height: 2px; background: var(--gray-border); }
+  .step-line.done { background: var(--green); }
+
+  /* QUESTIONNAIRE */
+  .q-item { margin-bottom: 24px; }
+  .q-label { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
+  .q-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .q-opt {
+    padding: 10px 6px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-muted);
+  }
+  .q-opt:hover { border-color: var(--blue-mid); color: var(--blue-mid); background: var(--blue-light); }
+  .q-opt.selected { border-color: var(--blue-primary); background: var(--blue-light); color: var(--blue-primary); font-weight: 700; }
+
+  /* MEMORY TEST */
+  .objects-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  .obj-card {
+    background: var(--blue-light);
+    border: 2px solid #BBDEFB;
+    border-radius: 10px;
+    padding: 16px 8px;
+    text-align: center;
+    font-size: 28px;
+    transition: all 0.3s;
+  }
+  .obj-card.hidden { background: #ECEFF1; border-color: #CFD8DC; font-size: 0; }
+  .obj-card.hidden::after { content: '?'; font-size: 24px; color: var(--text-light); }
+  .obj-name { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-weight: 600; }
+  .recall-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .recall-btn {
+    padding: 10px 4px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: 8px;
+    background: white;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .recall-btn:hover { border-color: var(--blue-mid); background: var(--blue-light); }
+  .recall-btn.selected { border-color: var(--blue-primary); background: var(--blue-light); }
+  .recall-btn.correct { border-color: var(--green); background: var(--green-light); }
+  .recall-btn.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* REACTION TEST */
+  .reaction-box {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    background: #ECEFF1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.1s;
+    border: 2px dashed var(--gray-border);
+    color: var(--text-muted);
+    user-select: none;
+  }
+  .reaction-box.ready { background: #E53935; color: white; border: none; }
+  .reaction-box.go { background: #43A047; color: white; border: none; font-size: 24px; }
+
+  /* FINGER TAP */
+  .tap-button {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue-primary), var(--accent));
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto;
+    transition: transform 0.08s, box-shadow 0.08s;
+    box-shadow: 0 6px 24px rgba(21,101,192,0.3);
+  }
+  .tap-button:active { transform: scale(0.94); box-shadow: 0 2px 10px rgba(21,101,192,0.2); }
+  .tap-count { font-size: 40px; font-weight: 800; }
+  .tap-label { font-size: 12px; opacity: 0.85; }
+
+  /* RESULT */
+  .result-meter {
+    position: relative;
+    width: 200px; height: 200px;
+    margin: 0 auto 24px;
+  }
+  .result-meter svg { transform: rotate(-90deg); }
+  .meter-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .meter-score { font-size: 38px; font-weight: 800; }
+  .meter-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+
+  .risk-badge {
+    display: inline-block;
+    padding: 8px 24px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .risk-low { background: var(--green-light); color: var(--green); }
+  .risk-moderate { background: var(--yellow-light); color: var(--yellow); }
+  .risk-high { background: var(--red-light); color: var(--red); }
+
+  .breakdown-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+  .breakdown-item {
+    background: var(--gray-bg);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .breakdown-item-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
+  .breakdown-bar-wrap { height: 8px; background: var(--gray-border); border-radius: 4px; overflow: hidden; margin-bottom: 4px; }
+  .breakdown-bar { height: 100%; border-radius: 4px; transition: width 1s; }
+  .breakdown-score { font-size: 18px; font-weight: 700; }
+
+  .recommendation-card {
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-top: 20px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .rec-icon { font-size: 28px; }
+  .rec-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .rec-text { font-size: 13px; line-height: 1.6; }
+
+  /* HARDWARE */
+  .hw-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .hw-card {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .hw-icon { font-size: 28px; margin-bottom: 8px; }
+  .hw-name { font-size: 11px; font-weight: 700; color: var(--blue-primary); margin-bottom: 4px; }
+  .hw-desc { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+
+  /* REPORT */
+  .report-section { margin-bottom: 28px; }
+  .report-section h3 { font-size: 13px; font-weight: 700; color: var(--blue-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--gray-border); }
+  .report-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #F5F7FA; }
+  .report-row-label { color: var(--text-muted); }
+  .report-row-value { font-weight: 600; }
+
+  .timer-ring {
+    display: flex; align-items: center; justify-content: center;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 4px solid var(--blue-light);
+    font-size: 28px; font-weight: 800;
+    color: var(--blue-primary);
+    margin: 0 auto 16px;
+  }
+
+  .info-alert {
+    background: var(--blue-light);
+    border: 1px solid #BBDEFB;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #1565C0;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  @media print {
+    .nav, .progress-bar, .btn-blue, .btn-no-print { display: none !important; }
+    .card { box-shadow: none !important; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 0: HOME ============ -->
+<div id="page-home" class="page active">
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-logo">NS</div>
+      <div>
+        <div class="nav-title">NeuroSense AI</div>
+        <div class="nav-subtitle">Early Neurological Risk Screening</div>
+      </div>
+    </div>
+    <span class="nav-badge">SIH25218</span>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-tag">🧠 NEUROLOGICAL RISK SCREENING</div>
+      <h1>Neuro<span>Sense</span> AI</h1>
+      <div class="hero-tagline">Early Neurological Risk Screening System</div>
+      <div class="hero-sub">A smart, evidence-based screening tool for early identification of neurological risk indicators using cognitive and motor assessments.</div>
+      <button class="btn-primary" onclick="showPage('page-register')">▶ Start Screening</button>
+      <button class="btn-secondary" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Learn More</button>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">6</div><div class="stat-lbl">Assessment Modules</div></div>
+    <div class="stat-item"><div class="stat-num">~10</div><div class="stat-lbl">Minutes to Complete</div></div>
+    <div class="stat-item"><div class="stat-num">4</div><div class="stat-lbl">Risk Parameters</div></div>
+    <div class="stat-item"><div class="stat-num">AI</div><div class="stat-lbl">Risk Analysis</div></div>
+  </div>
+
+  <div class="section" id="about">
+    <div class="section-title">About NeuroSense AI</div>
+    <div class="section-sub">A digital neurological screening tool aligned with Smart India Hackathon 2025 problem statement SIH25218</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#E3F2FD">📋</div>
+        <h3>Symptom Questionnaire</h3>
+        <p>Structured self-reported assessment covering tremors, balance, memory, speech, coordination, and muscle function across six dimensions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#E8F5E9">🧩</div>
+        <h3>Memory Assessment</h3>
+        <p>Object recall test measuring short-term visual memory with a controlled delay interval to evaluate retention accuracy.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FFF3E0">⚡</div>
+        <h3>Reaction Time Test</h3>
+        <p>Stimulus-response measurement that evaluates neural processing speed and psychomotor reaction across multiple trials.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FCE4EC">👆</div>
+        <h3>Finger Tapping Test</h3>
+        <p>Validated motor assessment measuring manual dexterity and fine motor control through rhythmic tapping velocity analysis.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#E8EAF6">📊</div>
+        <h3>AI Risk Scoring</h3>
+        <p>Composite weighted scoring algorithm combining all test results to generate a comprehensive neurological risk profile.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#E0F7FA">📄</div>
+        <h3>Detailed Report</h3>
+        <p>Downloadable PDF report containing full patient data, test outcomes, risk scores, and clinical referral recommendations.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top: 0;">
+    <div class="section-title">Screening Workflow</div>
+    <div class="section-sub">Six-step evidence-based assessment process</div>
+    <div style="display: flex; gap: 0; background: white; border: 1px solid var(--gray-border); border-radius: 12px; overflow: hidden;">
+      <div style="flex:1; padding:20px 16px; text-align:center; border-right:1px solid var(--gray-border);">
+        <div style="font-size:22px;margin-bottom:6px">📝</div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue-primary)">STEP 1</div>
+        <div style="font-size:13px;font-weight:600;margin-top:4px">Registration</div>
+      </div>
+      <div style="flex:1; padding:20px 16px; text-align:center; border-right:1px solid var(--gray-border);">
+        <div style="font-size:22px;margin-bottom:6px">📋</div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue-primary)">STEP 2</div>
+        <div style="font-size:13px;font-weight:600;margin-top:4px">Questionnaire</div>
+      </div>
+      <div style="flex:1; padding:20px 16px; text-align:center; border-right:1px solid var(--gray-border);">
+        <div style="font-size:22px;margin-bottom:6px">🧩</div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue-primary)">STEP 3</div>
+        <div style="font-size:13px;font-weight:600;margin-top:4px">Memory Test</div>
+      </div>
+      <div style="flex:1; padding:20px 16px; text-align:center; border-right:1px solid var(--gray-border);">
+        <div style="font-size:22px;margin-bottom:6px">⚡</div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue-primary)">STEP 4</div>
+        <div style="font-size:13px;font-weight:600;margin-top:4px">Reaction Time</div>
+      </div>
+      <div style="flex:1; padding:20px 16px; text-align:center; border-right:1px solid var(--gray-border);">
+        <div style="font-size:22px;margin-bottom:6px">👆</div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue-primary)">STEP 5</div>
+        <div style="font-size:13px;font-weight:600;margin-top:4px">Finger Tapping</div>
+      </div>
+      <div style="flex:1; padding:20px 16px; text-align:center;">
+        <div style="font-size:22px;margin-bottom:6px">📊</div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue-primary)">STEP 6</div>
+        <div style="font-size:13px;font-weight:600;margin-top:4px">Results</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hardware Section -->
+  <div style="background: linear-gradient(135deg, #E3F2FD, #E0F7FA); padding: 60px 2rem;">
+    <div style="max-width: 1000px; margin: 0 auto;">
+      <div class="section-title">🔌 Future Hardware Integration</div>
+      <div class="section-sub">Embedded sensor modules planned for next-generation hardware-enhanced screening</div>
+      <div class="hw-grid">
+        <div class="hw-card"><div class="hw-icon">📡</div><div class="hw-name">ESP32</div><div class="hw-desc">Microcontroller for sensor data acquisition</div></div>
+        <div class="hw-card"><div class="hw-icon">📐</div><div class="hw-name">MPU6050</div><div class="hw-desc">6-axis tremor & motion sensor</div></div>
+        <div class="hw-card"><div class="hw-icon">❤️</div><div class="hw-name">MAX30102</div><div class="hw-desc">Pulse & SpO2 sensor</div></div>
+        <div class="hw-card"><div class="hw-icon">🎙️</div><div class="hw-name">Voice Module</div><div class="hw-desc">Speech pattern analysis</div></div>
+        <div class="hw-card"><div class="hw-icon">⚖️</div><div class="hw-name">Balance Sensor</div><div class="hw-desc">Postural stability detection</div></div>
+      </div>
+      <div style="margin-top:20px; background:rgba(255,255,255,0.6); border-radius:10px; padding:16px 20px; font-size:13px; color:var(--text-muted); line-height:1.6;">
+        <strong style="color:var(--blue-primary)">Future Roadmap:</strong> Subsequent versions will integrate embedded hardware sensors to improve screening accuracy, reduce reliance on self-reported data, and enable continuous physiological monitoring for longitudinal neurological risk tracking.
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer" style="margin-top:40px; margin-bottom:0;">
+    <div class="disclaimer-title">⚠️ IMPORTANT MEDICAL DISCLAIMER</div>
+    <p>This system is intended <strong>only for screening purposes</strong> and does <strong>not provide medical diagnosis</strong>. Results are indicative only and should not be used as a substitute for professional medical evaluation. Please consult a qualified neurologist for professional assessment and diagnosis. In case of emergency, contact emergency medical services immediately.</p>
+  </div>
+  <div style="background:white; border-top:1px solid var(--gray-border); padding:20px; text-align:center; font-size:12px; color:var(--text-light); margin-top:40px;">
+    NeuroSense AI — SIH25218 | Smart India Hackathon 2025 | ECE Final Year Project | For educational and demonstration purposes only
+  </div>
+</div>
+
+<!-- ============ PAGE 1: REGISTER ============ -->
+<div id="page-register" class="page form-page">
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-logo">NS</div>
+      <div><div class="nav-title">NeuroSense AI</div></div>
+    </div>
+    <button onclick="showPage('page-home')" style="background:none;border:1px solid var(--gray-border);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text-muted)">← Home</button>
+  </nav>
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step active"><div class="step-num">1</div><span>Register</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">2</div><span>Questions</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">3</div><span>Memory</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">4</div><span>Reaction</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">5</div><span>Tapping</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">6</div><span>Results</span></div>
+    </div>
+  </div>
+  <div class="form-container">
+    <div class="page-header">
+      <h2>Patient Registration</h2>
+      <p>Please provide your personal and medical details to begin the screening</p>
+    </div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="reg-name" placeholder="Enter your full name" />
+        </div>
+        <div class="form-group">
+          <label>Age *</label>
+          <input type="number" id="reg-age" placeholder="Years" min="10" max="100" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gender *</label>
+          <select id="reg-gender">
+            <option value="">Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+            <option>Prefer not to say</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="reg-phone" placeholder="+91 XXXXX XXXXX" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Known Medical History</label>
+        <textarea id="reg-history" rows="3" placeholder="List any known conditions, medications, or neurological history (optional)..."></textarea>
+      </div>
+    </div>
+    <div class="disclaimer" style="margin:0 0 20px;">
+      <div class="disclaimer-title">ℹ️ Data Privacy</div>
+      <p>Your information is used solely for generating your screening report during this session and is not stored or transmitted.</p>
+    </div>
+    <button class="btn-blue" onclick="registerPatient()">Continue to Questionnaire →</button>
+  </div>
+</div>
+
+<!-- ============ PAGE 2: QUESTIONNAIRE ============ -->
+<div id="page-quiz" class="page form-page">
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-logo">NS</div>
+      <div><div class="nav-title">NeuroSense AI</div></div>
+    </div>
+    <span class="nav-badge">Step 2 of 6</span>
+  </nav>
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-num">✓</div><span>Register</span></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-num">2</div><span>Questions</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">3</div><span>Memory</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">4</div><span>Reaction</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">5</div><span>Tapping</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">6</div><span>Results</span></div>
+    </div>
+  </div>
+  <div class="form-container">
+    <div class="page-header">
+      <h2>Symptom Questionnaire</h2>
+      <p>Rate how often you experience each symptom. Answer honestly for accurate results.</p>
+    </div>
+    <div class="card" id="quiz-form">
+      <!-- Dynamically generated -->
+    </div>
+    <button class="btn-blue" onclick="submitQuiz()">Continue to Memory Test →</button>
+  </div>
+</div>
+
+<!-- ============ PAGE 3: MEMORY TEST ============ -->
+<div id="page-memory" class="page form-page">
+  <nav class="nav">
+    <div class="nav-brand"><div class="nav-logo">NS</div><div><div class="nav-title">NeuroSense AI</div></div></div>
+    <span class="nav-badge">Step 3 of 6</span>
+  </nav>
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-num">✓</div><span>Register</span></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-num">✓</div><span>Questions</span></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-num">3</div><span>Memory</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">4</div><span>Reaction</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">5</div><span>Tapping</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">6</div><span>Results</span></div>
+    </div>
+  </div>
+  <div class="form-container">
+    <div class="page-header"><h2>Memory Assessment</h2><p>Memorize the objects, then recall them after a short delay.</p></div>
+    <div class="card" id="memory-content"><!-- Dynamic --></div>
+  </div>
+</div>
+
+<!-- ============ PAGE 4: REACTION ============ -->
+<div id="page-reaction" class="page form-page">
+  <nav class="nav">
+    <div class="nav-brand"><div class="nav-logo">NS</div><div><div class="nav-title">NeuroSense AI</div></div></div>
+    <span class="nav-badge">Step 4 of 6</span>
+  </nav>
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-num">✓</div><span>Register</span></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-num">✓</div><span>Questions</span></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-num">✓</div><span>Memory</span></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-num">4</div><span>Reaction</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">5</div><span>Tapping</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">6</div><span>Results</span></div>
+    </div>
+  </div>
+  <div class="form-container" style="max-width:500px">
+    <div class="page-header"><h2>Reaction Time Test</h2><p>Click the box immediately when it turns <strong>green</strong>. Complete 5 trials.</p></div>
+    <div class="card">
+      <div class="info-alert">Wait for the box to turn green, then click as fast as you can. Don't click early!</div>
+      <div class="reaction-box" id="reaction-box" onclick="handleReactionClick()">Click here to start</div>
+      <div style="display:flex; justify-content:space-between; margin-top:16px; font-size:13px;">
+        <span>Trial: <strong id="reaction-trial">0</strong>/5</span>
+        <span>Last: <strong id="reaction-last">—</strong></span>
+        <span>Avg: <strong id="reaction-avg">—</strong></span>
+      </div>
+      <div id="reaction-results" style="margin-top:12px;"></div>
+    </div>
+    <button class="btn-blue" id="btn-reaction-next" style="display:none" onclick="showPage('page-tap')">Continue to Finger Tapping →</button>
+  </div>
+</div>
+
+<!-- ============ PAGE 5: FINGER TAP ============ -->
+<div id="page-tap" class="page form-page">
+  <nav class="nav">
+    <div class="nav-brand"><div class="nav-logo">NS</div><div><div class="nav-title">NeuroSense AI</div></div></div>
+    <span class="nav-badge">Step 5 of 6</span>
+  </nav>
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-num">✓</div><span>Register</span></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-num">✓</div><span>Questions</span></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-num">✓</div><span>Memory</span></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-num">✓</div><span>Reaction</span></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-num">5</div><span>Tapping</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">6</div><span>Results</span></div>
+    </div>
+  </div>
+  <div class="form-container" style="max-width:500px;">
+    <div class="page-header"><h2>Finger Tapping Test</h2><p>Tap the button as many times as possible in 10 seconds.</p></div>
+    <div class="card" style="text-align:center;">
+      <div class="info-alert">Press START then tap the circle as fast as you can for 10 seconds!</div>
+      <div class="timer-ring" id="tap-timer">10</div>
+      <button class="tap-button" id="tap-btn" onclick="handleTap()" disabled>
+        <div class="tap-count" id="tap-count">0</div>
+        <div class="tap-label">TAPS</div>
+      </button>
+      <div style="margin-top:20px; font-size:13px; color:var(--text-muted)" id="tap-status">Press Start to begin</div>
+      <button class="btn-blue" id="tap-start-btn" style="margin-top:16px;" onclick="startTap()">Start Tapping Test</button>
+    </div>
+    <button class="btn-blue" id="btn-tap-next" style="display:none; margin-top:16px" onclick="computeResults()">View Results →</button>
+  </div>
+</div>
+
+<!-- ============ PAGE 6: RESULTS ============ -->
+<div id="page-results" class="page form-page">
+  <nav class="nav">
+    <div class="nav-brand"><div class="nav-logo">NS</div><div><div class="nav-title">NeuroSense AI</div></div></div>
+    <span class="nav-badge">Results</span>
+  </nav>
+  <div class="form-container" style="max-width:700px">
+    <div class="page-header"><h2>Screening Results</h2><p>Neurological risk assessment summary for <strong id="res-name">Patient</strong></p></div>
+
+    <div class="card" style="text-align:center; margin-bottom:20px;">
+      <div class="result-meter">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#E0E8F0" stroke-width="16"/>
+          <circle cx="100" cy="100" r="80" fill="none" id="meter-circle" stroke="#2E7D32" stroke-width="16" stroke-dasharray="0 502" stroke-linecap="round" style="transition: stroke-dasharray 1.5s ease"/>
+        </svg>
+        <div class="meter-text">
+          <div class="meter-score" id="meter-num">—</div>
+          <div class="meter-label">Risk Score</div>
+        </div>
+      </div>
+      <div id="risk-badge-container"></div>
+      <div style="font-size:14px; color:var(--text-muted); max-width:350px; margin:0 auto;" id="res-date"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px; font-weight:700; margin-bottom:16px;">Risk Contribution by Assessment</div>
+      <div class="breakdown-grid" id="breakdown-grid"></div>
+    </div>
+
+    <div class="card" id="recommendation-card"></div>
+
+    <div class="card" style="margin-top:0;">
+      <div style="font-size:14px; font-weight:700; margin-bottom:16px;">Patient Summary</div>
+      <div id="patient-summary"></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:40px;">
+      <button class="btn-blue" onclick="showPage('page-report')">📄 View Full Report</button>
+      <button class="btn-blue" style="background:white; color:var(--blue-primary); border:2px solid var(--blue-primary);" onclick="restartApp()">🔄 New Screening</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 7: REPORT ============ -->
+<div id="page-report" class="page form-page">
+  <nav class="nav btn-no-print">
+    <div class="nav-brand"><div class="nav-logo">NS</div><div><div class="nav-title">NeuroSense AI — Screening Report</div></div></div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="window.print()" style="background:var(--blue-primary);color:white;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">🖨 Print / Export PDF</button>
+      <button onclick="showPage('page-results')" style="background:none;border:1px solid var(--gray-border);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text-muted)">← Back</button>
+    </div>
+  </nav>
+  <div class="form-container" style="max-width:700px">
+    <!-- Report Header -->
+    <div style="text-align:center; padding:32px 0 24px; border-bottom:2px solid var(--blue-primary); margin-bottom:28px;">
+      <div style="font-size:24px; font-weight:800; color:var(--blue-primary); letter-spacing:-0.5px;">NeuroSense AI</div>
+      <div style="font-size:13px; color:var(--text-muted); margin-top:4px;">Neurological Risk Screening Report</div>
+      <div style="font-size:11px; color:var(--text-light); margin-top:2px;">SIH25218 | Smart India Hackathon 2025</div>
+    </div>
+
+    <div class="card">
+      <div class="report-section">
+        <h3>Patient Information</h3>
+        <div id="report-patient"></div>
+      </div>
+      <div class="report-section">
+        <h3>Test Results</h3>
+        <div id="report-tests"></div>
+      </div>
+      <div class="report-section" style="margin-bottom:0">
+        <h3>Risk Assessment</h3>
+        <div id="report-risk"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="report-section" style="margin-bottom:0">
+        <h3>Recommendations</h3>
+        <div id="report-rec"></div>
+      </div>
+    </div>
+
+    <!-- Hardware Future -->
+    <div class="card">
+      <div class="report-section">
+        <h3>Future Hardware Integration (v2.0)</h3>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:8px 4px;background:var(--gray-bg);border-radius:8px;"><div style="font-size:18px">📡</div>ESP32</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:8px 4px;background:var(--gray-bg);border-radius:8px;"><div style="font-size:18px">📐</div>MPU6050</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:8px 4px;background:var(--gray-bg);border-radius:8px;"><div style="font-size:18px">❤️</div>MAX30102</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:8px 4px;background:var(--gray-bg);border-radius:8px;"><div style="font-size:18px">🎙️</div>Voice</div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:8px 4px;background:var(--gray-bg);border-radius:8px;"><div style="font-size:18px">⚖️</div>Balance</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer" style="margin-bottom:20px;">
+      <div class="disclaimer-title">⚠️ MEDICAL DISCLAIMER</div>
+      <p>This report is generated by an automated screening tool (NeuroSense AI, SIH25218) and is <strong>NOT a medical diagnosis</strong>. It is intended solely for educational screening purposes. Please consult a qualified neurologist for professional medical evaluation and diagnosis.</p>
+    </div>
+    <div style="text-align:center; font-size:11px; color:var(--text-light); padding-bottom:40px;" id="report-footer"></div>
+  </div>
+</div>
+
+<script>
+// ===================== APP STATE =====================
+var state = {
+  patient: {},
+  quizScores: [],
+  memoryScore: 0,
+  reactionScore: 0,
+  tapScore: 0,
+  reactionTimes: [],
+  tapCount: 0
+};
+
+var quizQuestions = [
+  { id: 'tremors', label: '🤝 Hand Tremors', desc: 'Shaking or trembling in hands/fingers' },
+  { id: 'balance', label: '⚖️ Balance Issues', desc: 'Difficulty maintaining balance or coordination' },
+  { id: 'memory', label: '🧠 Memory Problems', desc: 'Forgetting recent events or conversations' },
+  { id: 'speech', label: '💬 Speech Difficulties', desc: 'Slurred speech, word-finding difficulties' },
+  { id: 'coordination', label: '🎯 Coordination Problems', desc: 'Difficulty with fine motor tasks' },
+  { id: 'weakness', label: '💪 Muscle Weakness', desc: 'Unusual weakness in limbs or body' }
+];
+
+var quizOptions = [
+  { label: 'Never', value: 0 },
+  { label: 'Rarely', value: 1 },
+  { label: 'Sometimes', value: 2 },
+  { label: 'Often', value: 3 }
+];
+
+var memoryObjects = [
+  { emoji: '🍎', name: 'Apple' },
+  { emoji: '🚗', name: 'Car' },
+  { emoji: '⌚', name: 'Watch' },
+  { emoji: '📚', name: 'Book' },
+  { emoji: '🎸', name: 'Guitar' },
+  { emoji: '🌺', name: 'Flower' },
+  { emoji: '🦋', name: 'Butterfly' },
+  { emoji: '🎩', name: 'Hat' },
+  { emoji: '🍕', name: 'Pizza' },
+  { emoji: '⚽', name: 'Ball' }
+];
+
+var selectedObjects = [];
+var memoryPhase = 'start'; // start, show, delay, recall, done
+var recallSelected = [];
+var memoryTimerId = null;
+
+var reactionState = 'idle'; // idle, waiting, ready, done
+var reactionTimer = null;
+var reactionStart = null;
+var reactionTrial = 0;
+var reactionTimes = [];
+
+var tapState = 'idle';
+var tapCount = 0;
+var tapTimer = null;
+var tapTimeLeft = 10;
+
+// ===================== NAVIGATION =====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'page-quiz') initQuiz();
+  if (id === 'page-memory') initMemory();
+  if (id === 'page-reaction') initReaction();
+  if (id === 'page-tap') initTap();
+}
+
+// ===================== REGISTRATION =====================
+function registerPatient() {
+  var name = document.getElementById('reg-name').value.trim();
+  var age = document.getElementById('reg-age').value;
+  var gender = document.getElementById('reg-gender').value;
+  if (!name || !age || !gender) {
+    alert('Please fill in Name, Age, and Gender to continue.');
+    return;
+  }
+  state.patient = {
+    name: name,
+    age: age,
+    gender: gender,
+    phone: document.getElementById('reg-phone').value,
+    history: document.getElementById('reg-history').value,
+    date: new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' })
+  };
+  showPage('page-quiz');
+}
+
+// ===================== QUIZ =====================
+function initQuiz() {
+  var html = '';
+  quizQuestions.forEach(function(q, i) {
+    html += '<div class="q-item"><div class="q-label">' + q.label + '</div>';
+    html += '<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">' + q.desc + '</div>';
+    html += '<div class="q-options">';
+    quizOptions.forEach(function(opt) {
+      html += '<div class="q-opt" onclick="selectQuiz(' + i + ',' + opt.value + ',this)">' + opt.label + '</div>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('quiz-form').innerHTML = html;
+  state.quizScores = new Array(quizQuestions.length).fill(-1);
+}
+
+function selectQuiz(qIdx, val, el) {
+  var opts = el.parentElement.querySelectorAll('.q-opt');
+  opts.forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  state.quizScores[qIdx] = val;
+}
+
+function submitQuiz() {
+  if (state.quizScores.indexOf(-1) !== -1) {
+    alert('Please answer all 6 questions before continuing.');
+    return;
+  }
+  showPage('page-memory');
+}
+
+// ===================== MEMORY TEST =====================
+function initMemory() {
+  selectedObjects = shuffle(memoryObjects).slice(0, 5);
+  memoryPhase = 'start';
+  recallSelected = [];
+  renderMemory();
+}
+
+function renderMemory() {
+  var c = document.getElementById('memory-content');
+  if (memoryPhase === 'start') {
+    c.innerHTML = '<div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:16px">🧩</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">Short-Term Memory Test</div><div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">You will be shown 5 objects for <strong>5 seconds</strong>. Then they will be hidden, and you must recall them.</div><button class="btn-blue" onclick="startMemoryShow()">Show Objects</button></div>';
+  } else if (memoryPhase === 'show') {
+    var html = '<div style="font-size:13px;color:var(--blue-primary);font-weight:700;text-align:center;margin-bottom:12px">Memorize these objects! — <span id="mem-countdown" style="font-size:18px">5</span>s</div>';
+    html += '<div class="objects-grid">';
+    selectedObjects.forEach(function(o) {
+      html += '<div class="obj-card"><div style="font-size:32px">' + o.emoji + '</div><div class="obj-name">' + o.name + '</div></div>';
+    });
+    html += '</div>';
+    c.innerHTML = html;
+    var secs = 5;
+    memoryTimerId = setInterval(function() {
+      secs--;
+      var el = document.getElementById('mem-countdown');
+      if (el) el.textContent = secs;
+      if (secs <= 0) { clearInterval(memoryTimerId); startMemoryDelay(); }
+    }, 1000);
+  } else if (memoryPhase === 'delay') {
+    c.innerHTML = '<div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:16px">⏳</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">Short Delay...</div><div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">Get ready to recall in <span id="delay-countdown" style="font-size:20px;font-weight:700;color:var(--blue-primary)">5</span>s</div></div>';
+    var d = 5;
+    memoryTimerId = setInterval(function() {
+      d--;
+      var el = document.getElementById('delay-countdown');
+      if (el) el.textContent = d;
+      if (d <= 0) { clearInterval(memoryTimerId); startMemoryRecall(); }
+    }, 1000);
+  } else if (memoryPhase === 'recall') {
+    var allObjs = shuffle(memoryObjects).slice(0, 10);
+    selectedObjects.forEach(function(o) {
+      if (!allObjs.find(function(x){ return x.name === o.name; })) allObjs.push(o);
+    });
+    allObjs = shuffle(allObjs).slice(0, 10);
+    var html = '<div style="font-size:13px;font-weight:700;color:var(--text-main);margin-bottom:4px">Which objects did you see? Select all 5.</div>';
+    html += '<div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Selected: <span id="recall-count">0</span>/5</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">';
+    allObjs.forEach(function(o) {
+      html += '<div class="recall-btn" onclick="toggleRecall(this,\'' + o.name + '\')" data-name="' + o.name + '"><div style="font-size:24px">' + o.emoji + '</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">' + o.name + '</div></div>';
+    });
+    html += '</div><button class="btn-blue" id="recall-submit-btn" style="margin-top:20px;opacity:0.5" onclick="submitRecall()" disabled>Submit Recall</button>';
+    c.innerHTML = html;
+    recallSelected = [];
+  } else if (memoryPhase === 'done') {
+    var correct = recallSelected.filter(function(n){ return selectedObjects.find(function(o){ return o.name === n; }); }).length;
+    var score = Math.round((correct / 5) * 100);
+    state.memoryScore = score;
+    var html = '<div style="text-align:center;padding:20px 0">';
+    html += '<div style="font-size:48px;margin-bottom:12px">' + (score >= 80 ? '🌟' : score >= 60 ? '👍' : '🔄') + '</div>';
+    html += '<div style="font-size:22px;font-weight:800;color:var(--blue-primary)">Memory Score: ' + score + '%</div>';
+    html += '<div style="font-size:13px;color:var(--text-muted);margin:8px 0 20px">You recalled ' + correct + ' out of 5 objects correctly</div>';
+    html += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px">';
+    selectedObjects.forEach(function(o) {
+      var was = recallSelected.indexOf(o.name) !== -1;
+      html += '<span style="padding:6px 12px;border-radius:6px;font-size:13px;background:' + (was ? 'var(--green-light)' : 'var(--red-light)') + ';color:' + (was ? 'var(--green)' : 'var(--red)') + '">' + o.emoji + ' ' + o.name + ' ' + (was ? '✓' : '✗') + '</span>';
+    });
+    html += '</div>';
+    html += '<button class="btn-blue" onclick="showPage(\'page-reaction\')">Continue to Reaction Test →</button></div>';
+    c.innerHTML = html;
+  }
+}
+
+function startMemoryShow() { memoryPhase = 'show'; renderMemory(); }
+function startMemoryDelay() { memoryPhase = 'delay'; renderMemory(); }
+function startMemoryRecall() { memoryPhase = 'recall'; renderMemory(); }
+
+function toggleRecall(el, name) {
+  if (memoryPhase !== 'recall') return;
+  var idx = recallSelected.indexOf(name);
+  if (idx === -1) {
+    if (recallSelected.length >= 5) return;
+    recallSelected.push(name);
+    el.classList.add('selected');
+  } else {
+    recallSelected.splice(idx, 1);
+    el.classList.remove('selected');
+  }
+  var cnt = document.getElementById('recall-count');
+  if (cnt) cnt.textContent = recallSelected.length;
+  var btn = document.getElementById('recall-submit-btn');
+  if (btn) { btn.disabled = recallSelected.length < 1; btn.style.opacity = recallSelected.length < 1 ? '0.5' : '1'; }
+}
+
+function submitRecall() { memoryPhase = 'done'; renderMemory(); }
+
+// ===================== REACTION TEST =====================
+function initReaction() {
+  reactionState = 'idle';
+  reactionTrial = 0;
+  reactionTimes = [];
+  var box = document.getElementById('reaction-box');
+  box.className = 'reaction-box';
+  box.textContent = 'Click here to start';
+  document.getElementById('reaction-trial').textContent = '0';
+  document.getElementById('reaction-last').textContent = '—';
+  document.getElementById('reaction-avg').textContent = '—';
+  document.getElementById('reaction-results').innerHTML = '';
+  document.getElementById('btn-reaction-next').style.display = 'none';
+}
+
+function handleReactionClick() {
+  if (reactionTrial >= 5) return;
+  var box = document.getElementById('reaction-box');
+  if (reactionState === 'idle') {
+    startReactionTrial();
+  } else if (reactionState === 'waiting') {
+    box.className = 'reaction-box';
+    box.textContent = '❌ Too early! Wait for green';
+    clearTimeout(reactionTimer);
+    setTimeout(function() { startReactionTrial(); }, 1200);
+  } else if (reactionState === 'go') {
+    var rt = Date.now() - reactionStart;
+    reactionTimes.push(rt);
+    reactionState = 'idle';
+    clearTimeout(reactionTimer);
+    box.className = 'reaction-box';
+    document.getElementById('reaction-trial').textContent = reactionTrial + 1;
+    document.getElementById('reaction-last').textContent = rt + 'ms';
+    var avg = Math.round(reactionTimes.reduce(function(a,b){return a+b;},0) / reactionTimes.length);
+    document.getElementById('reaction-avg').textContent = avg + 'ms';
+    appendReactionResult(reactionTrial + 1, rt);
+    reactionTrial++;
+    if (reactionTrial < 5) {
+      box.textContent = 'Trial ' + (reactionTrial + 1) + '/5 — Click to continue';
+    } else {
+      box.textContent = '✅ Test Complete! Avg: ' + avg + 'ms';
+      var score = Math.max(0, Math.min(100, Math.round((1 - (avg - 200) / 600) * 100)));
+      score = Math.max(0, score);
+      state.reactionScore = score;
+      state.reactionTimes = reactionTimes;
+      document.getElementById('btn-reaction-next').style.display = 'block';
+    }
+  }
+}
+
+function startReactionTrial() {
+  var box = document.getElementById('reaction-box');
+  reactionState = 'waiting';
+  box.className = 'reaction-box ready';
+  box.textContent = '🔴 Wait...';
+  var delay = 1500 + Math.random() * 3000;
+  reactionTimer = setTimeout(function() {
+    reactionState = 'go';
+    reactionStart = Date.now();
+    box.className = 'reaction-box go';
+    box.textContent = '🟢 CLICK NOW!';
+    reactionTimer = setTimeout(function() {
+      if (reactionState === 'go') {
+        reactionState = 'idle';
+        box.className = 'reaction-box';
+        box.textContent = 'Too slow! Click to try again';
+      }
+    }, 2500);
+  }, delay);
+}
+
+function appendReactionResult(trial, time) {
+  var div = document.getElementById('reaction-results');
+  var color = time < 300 ? 'var(--green)' : time < 500 ? 'var(--yellow)' : 'var(--red)';
+  div.innerHTML += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--gray-border)"><span>Trial ' + trial + '</span><span style="font-weight:700;color:' + color + '">' + time + ' ms</span></div>';
+}
+
+// ===================== FINGER TAP =====================
+function initTap() {
+  tapState = 'idle';
+  tapCount = 0;
+  tapTimeLeft = 10;
+  document.getElementById('tap-count').textContent = '0';
+  document.getElementById('tap-timer').textContent = '10';
+  document.getElementById('tap-status').textContent = 'Press Start to begin';
+  document.getElementById('tap-btn').disabled = true;
+  document.getElementById('tap-start-btn').style.display = 'block';
+  document.getElementById('btn-tap-next').style.display = 'none';
+}
+
+function startTap() {
+  tapState = 'running';
+  tapCount = 0;
+  tapTimeLeft = 10;
+  document.getElementById('tap-btn').disabled = false;
+  document.getElementById('tap-start-btn').style.display = 'none';
+  document.getElementById('tap-status').textContent = 'TAP AS FAST AS YOU CAN!';
+  document.getElementById('tap-count').textContent = '0';
+  tapTimer = setInterval(function() {
+    tapTimeLeft--;
+    document.getElementById('tap-timer').textContent = tapTimeLeft;
+    if (tapTimeLeft <= 0) {
+      clearInterval(tapTimer);
+      tapState = 'done';
+      document.getElementById('tap-btn').disabled = true;
+      var tps = tapCount / 10;
+      var score = Math.min(100, Math.round((tps / 8) * 100));
+      state.tapScore = score;
+      state.tapCount = tapCount;
+      document.getElementById('tap-status').textContent = '✅ Done! ' + tapCount + ' taps (' + tps.toFixed(1) + ' taps/sec)';
+      document.getElementById('btn-tap-next').style.display = 'block';
+      document.getElementById('tap-timer').style.color = 'var(--green)';
+    }
+  }, 1000);
+}
+
+function handleTap() {
+  if (tapState !== 'running') return;
+  tapCount++;
+  document.getElementById('tap-count').textContent = tapCount;
+}
+
+// ===================== RESULTS =====================
+function computeResults() {
+  var qTotal = state.quizScores.reduce(function(a,b){return a+b;},0);
+  var qMax = quizQuestions.length * 3;
+  var qNormalized = 100 - Math.round((qTotal / qMax) * 100);
+
+  var finalScore = Math.round(
+    qNormalized * 0.4 +
+    state.memoryScore * 0.2 +
+    state.reactionScore * 0.2 +
+    state.tapScore * 0.2
+  );
+
+  state.finalScore = finalScore;
+  state.qNormalized = qNormalized;
+
+  showPage('page-results');
+  renderResults();
+}
+
+function renderResults() {
+  var score = state.finalScore;
+  document.getElementById('res-name').textContent = state.patient.name || 'Patient';
+  document.getElementById('res-date').textContent = 'Assessed on ' + state.patient.date;
+
+  var riskClass = score >= 70 ? 'low' : score >= 40 ? 'moderate' : 'high';
+  var riskLabel = score >= 70 ? 'Low Risk' : score >= 40 ? 'Moderate Risk' : 'High Risk';
+  var meterColor = score >= 70 ? '#2E7D32' : score >= 40 ? '#F57F17' : '#C62828';
+
+  document.getElementById('meter-num').textContent = score;
+  document.getElementById('meter-num').style.color = meterColor;
+
+  var circle = document.getElementById('meter-circle');
+  circle.style.stroke = meterColor;
+  setTimeout(function() {
+    var dash = Math.round((score / 100) * 502);
+    circle.style.strokeDasharray = dash + ' ' + (502 - dash);
+  }, 100);
+
+  document.getElementById('risk-badge-container').innerHTML = '<div class="risk-badge risk-' + riskClass + '">' + riskLabel + '</div>';
+
+  var bd = document.getElementById('breakdown-grid');
+  var items = [
+    { label: 'Symptom Questionnaire', score: state.qNormalized, weight: '40%', color: '#1565C0' },
+    { label: 'Memory Assessment', score: state.memoryScore, weight: '20%', color: '#7B1FA2' },
+    { label: 'Reaction Time', score: state.reactionScore, weight: '20%', color: '#00838F' },
+    { label: 'Finger Tapping', score: state.tapScore, weight: '20%', color: '#2E7D32' }
+  ];
+  bd.innerHTML = '';
+  items.forEach(function(item) {
+    var div = document.createElement('div');
+    div.className = 'breakdown-item';
+    div.innerHTML = '<div class="breakdown-item-label">' + item.label + ' <span style="float:right;background:var(--blue-light);color:var(--blue-primary);font-size:10px;padding:2px 6px;border-radius:4px">' + item.weight + '</span></div>' +
+      '<div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:0%;background:' + item.color + '" data-w="' + item.score + '"></div></div>' +
+      '<div class="breakdown-score" style="color:' + item.color + '">' + item.score + '</div>';
+    bd.appendChild(div);
+  });
+  setTimeout(function() {
+    document.querySelectorAll('.breakdown-bar').forEach(function(b) {
+      b.style.width = b.getAttribute('data-w') + '%';
+    });
+  }, 200);
+
+  var recHtml = '';
+  if (score >= 70) {
+    recHtml = '<div class="recommendation-card" style="background:var(--green-light);border:1px solid #A5D6A7"><div class="rec-icon">✅</div><div><div class="rec-title" style="color:var(--green)">Low Risk — No Significant Concerns</div><div class="rec-text" style="color:#388E3C">No significant neurological concerns detected. Continue maintaining a healthy lifestyle with regular exercise and mental stimulation. Repeat screening annually or if new symptoms arise.</div></div></div>';
+  } else if (score >= 40) {
+    recHtml = '<div class="recommendation-card" style="background:var(--yellow-light);border:1px solid #FFE082"><div class="rec-icon">⚠️</div><div><div class="rec-title" style="color:var(--yellow)">Moderate Risk — Monitor Symptoms</div><div class="rec-text" style="color:#E65100">Some neurological risk indicators detected. Monitor your symptoms closely and consider repeating this screening after 30 days. Consult a general physician to discuss your results.</div></div></div>';
+  } else {
+    recHtml = '<div class="recommendation-card" style="background:var(--red-light);border:1px solid #FFCDD2"><div class="rec-icon">🚨</div><div><div class="rec-title" style="color:var(--red)">High Risk — Consult a Neurologist</div><div class="rec-text" style="color:#B71C1C">Multiple neurological risk indicators detected. It is strongly recommended that you consult a qualified neurologist as soon as possible for professional evaluation and diagnosis.</div></div></div>';
+  }
+  document.getElementById('recommendation-card').innerHTML = recHtml;
+
+  var ps = '<div id="patient-summary">';
+  ps += '<div class="report-row"><span class="report-row-label">Name</span><span class="report-row-value">' + (state.patient.name||'—') + '</span></div>';
+  ps += '<div class="report-row"><span class="report-row-label">Age</span><span class="report-row-value">' + (state.patient.age||'—') + '</span></div>';
+  ps += '<div class="report-row"><span class="report-row-label">Gender</span><span class="report-row-value">' + (state.patient.gender||'—') + '</span></div>';
+  ps += '</div>';
+  document.getElementById('patient-summary').outerHTML = ps;
+
+  renderReport();
+}
+
+function renderReport() {
+  var score = state.finalScore;
+  var riskLabel = score >= 70 ? 'Low Risk' : score >= 40 ? 'Moderate Risk' : 'High Risk';
+  var riskColor = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--yellow)' : 'var(--red)';
+  var avgRT = state.reactionTimes.length ? Math.round(state.reactionTimes.reduce(function(a,b){return a+b;},0)/state.reactionTimes.length) : 'N/A';
+
+  document.getElementById('report-patient').innerHTML =
+    '<div class="report-row"><span class="report-row-label">Full Name</span><span class="report-row-value">' + (state.patient.name||'—') + '</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Age</span><span class="report-row-value">' + (state.patient.age||'—') + ' years</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Gender</span><span class="report-row-value">' + (state.patient.gender||'—') + '</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Phone</span><span class="report-row-value">' + (state.patient.phone||'Not provided') + '</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Medical History</span><span class="report-row-value" style="max-width:300px;text-align:right">' + (state.patient.history||'None reported') + '</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Assessment Date</span><span class="report-row-value">' + state.patient.date + '</span></div>';
+
+  document.getElementById('report-tests').innerHTML =
+    '<div class="report-row"><span class="report-row-label">Symptom Questionnaire (40%)</span><span class="report-row-value">' + state.qNormalized + ' / 100</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Memory Assessment (20%)</span><span class="report-row-value">' + state.memoryScore + ' / 100</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Reaction Time Test (20%)</span><span class="report-row-value">' + state.reactionScore + ' / 100 (Avg: ' + avgRT + 'ms)</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Finger Tapping Test (20%)</span><span class="report-row-value">' + state.tapScore + ' / 100 (' + state.tapCount + ' taps / 10s)</span></div>';
+
+  document.getElementById('report-risk').innerHTML =
+    '<div class="report-row"><span class="report-row-label">Composite Risk Score</span><span class="report-row-value" style="font-size:20px;color:' + riskColor + '">' + score + ' / 100</span></div>' +
+    '<div class="report-row"><span class="report-row-label">Risk Level</span><span class="report-row-value" style="color:' + riskColor + ';font-size:15px">' + riskLabel + '</span></div>';
+
+  var recText = score >= 70 ? 'No significant neurological concerns detected. Maintain healthy lifestyle and repeat screening annually.' :
+    score >= 40 ? 'Monitor symptoms and repeat screening after 30 days. Consult a general physician to discuss findings.' :
+    'Multiple risk indicators identified. Consult a qualified neurologist immediately for professional evaluation and diagnosis.';
+  document.getElementById('report-rec').innerHTML = '<div style="font-size:14px;line-height:1.7;color:var(--text-main);padding:8px 0">' + recText + '</div>';
+  document.getElementById('report-footer').textContent = 'NeuroSense AI — SIH25218 | Generated: ' + state.patient.date + ' | For screening purposes only — Not a medical diagnosis';
+}
+
+function restartApp() {
+  state = { patient: {}, quizScores: [], memoryScore: 0, reactionScore: 0, tapScore: 0, reactionTimes: [], tapCount: 0 };
+  showPage('page-home');
+}
+
+// ===================== HELPERS =====================
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+</script>
+</body>
+</html>
